@@ -9,7 +9,7 @@ before_install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda update --q conda
-
+  
 install:
   - conda install --yes python=$PYTHON_VERSION pip
   - pip install coveralls
