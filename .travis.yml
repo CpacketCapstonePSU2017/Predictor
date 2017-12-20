@@ -24,7 +24,7 @@ install:
   #- pip install influxdb
   
 script:
-  - pytest
+  - python main.py
   #- nosetests --verbose --with-coverage --cover-package=tests
 
 after_success:
