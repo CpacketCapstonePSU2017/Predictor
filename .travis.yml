@@ -32,3 +32,4 @@ after_success:
 
 notifications:
     slack: cpacketprojectteam:mecKd9pja1Uw2fhZ5UbICcA0
+    email: false
