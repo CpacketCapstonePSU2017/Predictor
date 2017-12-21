@@ -1,0 +1,3 @@
+[submodule "CPacket-Common-Modules"]
+	path = CPacket-Common-Modules
+	url = https://github.com/CpacketCapstonePSU2017/CPacket-Common-Modules
