@@ -22,11 +22,6 @@ class TesterPframeworkSelector(unittest.TestCase):
             self.fail("Test: Failed - {0}\n".format(error))
 
     def test_importing_wrong_model(self):
-        try:
             with self.assertRaises(TypeError):
-                result = self.predictor.call_model('model_test_1')
-                self.assertEqual(result, None)
-        except Exception as error:
-            self.fail("Test: Failed - {0}\n".format(error))
-
+                self.predictor.call_model('model_test_1')
 
