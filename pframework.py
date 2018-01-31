@@ -32,18 +32,19 @@ class TrafficPredictor:
             if selection == '-':
                 return
             elif selection == x:
-                self.call_model(model)
+                try:
+                    self.call_model(model)
+                except TypeError:
+                    print("ERROR: The model import failed. Please make sure to properly add your model.")
             else:
                 print("ERROR: there's no such model")
 
-    def call_model(self, module_name):
+    def call_model(self, model_name):
         result = None
-        model_root = 'PModules.' + module_name + "." + module_name + "." + module_name
-        try:
-            model = locate(model_root)
-            self._selected_model = model() # Your model class instance
-            result = self._selected_model.call_model()
-        except TypeError:
-            print("ERROR: The model import failed. Please make sure to properly add your model.")
+        model_root = 'PModules.' + model_name + "." + model_name + "." + model_name
+        model = locate(model_root)
+        self._selected_model = model() # Your model class instance
+        result = self._selected_model.call_model()
+
 
         return result

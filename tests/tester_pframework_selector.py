@@ -23,8 +23,9 @@ class MyTestCase(unittest.TestCase):
 
     def test_importing_wrong_model(self):
         try:
-            result = self.predictor.call_model('model_test_1')
-            self.assertEqual(result, None)
+            with self.assertRaises(TypeError):
+                result = self.predictor.call_model('model_test_1')
+                self.assertEqual(result, None)
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
 
