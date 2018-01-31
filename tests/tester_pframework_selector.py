@@ -3,7 +3,7 @@ from unittest.mock import patch
 from pframework import TrafficPredictor
 
 
-class MyTestCase(unittest.TestCase):
+class TesterPframeworkSelector(unittest.TestCase):
     predictor = TrafficPredictor()
 
     @patch('builtins.input')
