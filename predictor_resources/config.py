@@ -4,4 +4,4 @@ RESOURCES_DIR = path.dirname(path.abspath(__file__))
 
 # This list contains the statistical models that can be used by Predictor
 # They should all follow the similar structure
-models = ['model_test', 'SimpleMovingAverage']
+models = ['SimpleMovingAverage']
