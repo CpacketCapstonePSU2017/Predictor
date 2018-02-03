@@ -16,8 +16,8 @@ class TesterPframeworkSelector(unittest.TestCase):
 
     def test_importing_model_test(self):
         try:
-            result = self.predictor.call_model('model_test')
-            self.assertEqual(result, "This is model test!")
+            result = self.predictor.call_model('SimpleMovingAverage')
+            self.assertIsNotNone(result)
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
 
