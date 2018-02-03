@@ -9,7 +9,7 @@ PModules                root folder for all models
             |
             model_name  model_name class
 """
-from resources.config import models
+from predictor_resources.config import models
 from pydoc import locate
 
 
@@ -48,3 +48,4 @@ class TrafficPredictor:
 
 
         return result
+
