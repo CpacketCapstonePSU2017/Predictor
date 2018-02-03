@@ -28,9 +28,13 @@ class SimpleMovingAverage:
 
     :param default_stride: represents the stride for calculating the moving average (DAILY/WEEKLY)
     :param window_length: Number of days in a single series
+    :param data_file: Name of the file that exists in the predictor_resources folder
     :return: numpy array object with two columns, a timeseries object(in epoch format) and the predicted bytecount
 
     """
+
+    formattedInput = []
+    lastDate = ""
 
     def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.defaultStride = default_stride
@@ -38,21 +42,21 @@ class SimpleMovingAverage:
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="",
                                    new_cvs_file_name="")
 
-        print(path.join(RESOURCES_DIR, data_file))
         # Data returned as two columns. One with timeseries and other with bytecount values
-        returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file),
-                                            new_row_start=0, new_row_end=self.defaultStride.value * self.windowLength)
+        self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file)
+                                            ,new_row_start=0, new_row_end=self.defaultStride.value * self.windowLength)
 
-        print(returned_data_frame)
+    def initialize_dataframe_output(self):
         # Input formatting for future calculation
-        numpy_array = np.array(returned_data_frame)[:, 1]
+        numpy_array = np.array(self.returned_data_frame)[:, 1]
         numpy_array = numpy_array.reshape((numpy_array.size//self.defaultStride.value, self.defaultStride.value)).transpose()
         self.formattedInput = numpy_array
 
         # Getting the last day in the "training" data. Used to generate the output timeseries later
-        self.lastDate = np.array(returned_data_frame)[-1:, :-1][0][0]
+        self.lastDate = np.array(self.returned_data_frame)[-1:, :-1][0][0]
 
     def call_model(self):
+        self.initialize_dataframe_output()
         numpy_array = self.formattedInput
 
         # makes a numpy array of length(windowLength) and divides each with the scalar value of window.length
@@ -81,5 +85,3 @@ class SimpleMovingAverage:
 
         return np.array([result_datetimes, predictions]).transpose()
 
-yo = SimpleMovingAverage()
-print(yo.call_model())
