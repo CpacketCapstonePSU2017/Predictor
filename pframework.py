@@ -49,5 +49,3 @@ class TrafficPredictor:
 
         return result
 
-
-print(TrafficPredictor().call_model('SimpleMovingAverage'))
