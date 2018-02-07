@@ -40,12 +40,10 @@ class TrafficPredictor:
                 print("ERROR: there's no such model")
 
     def call_model(self, model_name):
-        result = None
         model_root = 'PModules.' + model_name + "." + model_name + "." + model_name
         model = locate(model_root)
         self._selected_model = model() # Your model class instance
-        result = self._selected_model.call_model()
-
+        result = self._selected_model.call_model(to_df=True)
 
         return result
 

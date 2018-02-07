@@ -2,15 +2,12 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 from scipy import signal
-
 import root
 import sys
 from os import path
 from predictor_resources.config import RESOURCES_DIR
 sys.path.append(path.join(root.ROOT_DIR, 'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
-
-
 
 
 class Stride(Enum):
@@ -55,7 +52,7 @@ class SimpleMovingAverage:
         # Getting the last day in the "training" data. Used to generate the output timeseries later
         self.lastDate = np.array(self.returned_data_frame)[-1:, :-1][0][0]
 
-    def call_model(self):
+    def call_model(self, to_df=False):
         self.initialize_dataframe_output()
         numpy_array = self.formattedInput
 
@@ -82,6 +79,13 @@ class SimpleMovingAverage:
 
         # Creates a numpy array(One week long), because the function is inclusive getting rid of the first element
         result_datetimes = np.array(pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min'))[1:]
+        nparray_data = np.array([result_datetimes, predictions]).transpose()
 
-        return np.array([result_datetimes, predictions]).transpose()
-
+        if to_df:
+            col = [self.returned_data_frame.columns[1]]
+            df = pd.DataFrame(data=nparray_data[0:, 1:],
+                              index=nparray_data[:, 0],
+                              columns=col)
+            return df
+        else:
+            return nparray_data
