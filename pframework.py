@@ -9,14 +9,21 @@ PModules                root folder for all models
             |
             model_name  model_name class
 """
-from predictor_resources.config import models
+import pandas as pd
+from predictor_resources.config import models, RESOURCES_DIR
+from predictor_resources import db_config
 from pydoc import locate
-
+import sys
+from os import path
+from root import ROOT_DIR
+sys.path.append(path.join(ROOT_DIR,'CPacket-Common-Modules'))
+from io_framework.csv_writer import CsvWriter
 
 class TrafficPredictor:
 
     _selected_model = None
-
+    _data_writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
+                             password=db_config.password, database="predicted_data")
     def main(self):
         print("Welcome to the Traffic Predictor!")
         print("Please choose your model (enter its index):")
@@ -33,7 +40,15 @@ class TrafficPredictor:
                 return
             elif selection == x:
                 try:
-                    self.call_model(model)
+                    df = self.call_model(model)
+                    print("Would you like to write predicted data to database?"
+                          "\nIf selected [n] the data will be written to local csv file")
+                    selection = input("Prompt: ")
+                    if selection.lower() == 'y':
+                        self.write_data_to_database(model, df)
+                    else:
+                        self.write_data_to_csv(model, df)
+
                 except TypeError:
                     print("ERROR: The model import failed. Please make sure to properly add your model.")
             else:
@@ -47,3 +62,16 @@ class TrafficPredictor:
 
         return result
 
+    def write_data_to_csv(self, model_name, df):
+        if not isinstance(df, pd.DataFrame):
+            print("Error reading the data from database. Please test this query in Chronograf.")
+        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted"))
+
+    def write_data_to_database(self, model_name, df):
+        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted"))
+        self._data_writer.csv_file_to_db(measurement_to_use=model_name + '_predicted',
+                                           new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted"))
+
+
+predictor = TrafficPredictor()
+predictor.main()
