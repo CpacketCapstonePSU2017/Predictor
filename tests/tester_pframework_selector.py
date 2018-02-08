@@ -9,7 +9,7 @@ class TesterPframeworkSelector(unittest.TestCase):
     @patch('builtins.input')
     def test_selecting_model_test(self, mocked_input):
         try:
-            mocked_input.side_effect = ['0']
+            mocked_input.side_effect = ['0','n']
             self.predictor.main()
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
