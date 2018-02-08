@@ -73,5 +73,5 @@ class TrafficPredictor:
                                            new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted"))
 
 
-predictor = TrafficPredictor()
-predictor.main()
+# predictor = TrafficPredictor()
+# predictor.main()
