@@ -32,6 +32,7 @@ class SimpleMovingAverage:
 
     formattedInput = []
     lastDate = ""
+    data_column_name = ""
 
     def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.defaultStride = default_stride
@@ -52,7 +53,7 @@ class SimpleMovingAverage:
         # Getting the last day in the "training" data. Used to generate the output timeseries later
         self.lastDate = np.array(self.returned_data_frame)[-1:, :-1][0][0]
 
-    def call_model(self, to_df=False):
+    def call_model(self):
         self.initialize_dataframe_output()
         numpy_array = self.formattedInput
 
@@ -79,13 +80,11 @@ class SimpleMovingAverage:
 
         # Creates a numpy array(One week long), because the function is inclusive getting rid of the first element
         result_datetimes = np.array(pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min'))[1:]
-        nparray_data = np.array([result_datetimes, predictions]).transpose()
+        # 2016-12-06 00:00:00
 
-        if to_df:
-            col = [self.returned_data_frame.columns[1]]
-            df = pd.DataFrame(data=nparray_data[0:, 1:],
-                              index=nparray_data[:, 0],
-                              columns=col)
-            return df
-        else:
-            return nparray_data
+        nparray_data = np.array([result_datetimes, predictions]).transpose()
+        self.data_column_name = self.returned_data_frame.columns[1]
+        return nparray_data
+
+    def get_data_column_name(self):
+        return self.data_column_name

@@ -40,7 +40,7 @@ class TrafficPredictor:
                 return
             elif selection == x:
                 try:
-                    df = self.call_model(model)
+                    df = self.nparray_to_dataframe(self.call_model(model))
                     print("Would you like to write predicted data to database?"
                           "\nIf selected [n] the data will be written to local csv file")
                     selection = input("Prompt: ")
@@ -58,19 +58,28 @@ class TrafficPredictor:
         model_root = 'PModules.' + model_name + "." + model_name + "." + model_name
         model = locate(model_root)
         self._selected_model = model() # Your model class instance
-        result = self._selected_model.call_model(to_df=True)
+        result = self._selected_model.call_model()
 
         return result
 
     def write_data_to_csv(self, model_name, df):
         if not isinstance(df, pd.DataFrame):
             print("Error reading the data from database. Please test this query in Chronograf.")
-        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted"))
+        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted.csv"))
 
     def write_data_to_database(self, model_name, df):
-        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted"))
+        df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted.csv"))
         self._data_writer.csv_file_to_db(measurement_to_use=model_name + '_predicted',
-                                           new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted"))
+                                         new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted"))
+
+    def nparray_to_dataframe(self, nparray_data):
+        indexes = pd.DataFrame(nparray_data[:, 0])
+        indexes[0] = pd.to_datetime(indexes[0], format='%Y-%m-%d %H:%M:%S')
+        cols = [self._selected_model.get_data_column_name()]
+        df = pd.DataFrame(data=nparray_data[0:, 1:],
+                          index=indexes[0],
+                          columns=cols)
+        return df
 
 
 # predictor = TrafficPredictor()

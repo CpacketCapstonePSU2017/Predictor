@@ -1,6 +1,7 @@
 from unittest import TestCase
+from unittest.mock import patch
 from PModules.SimpleMovingAverage import SimpleMovingAverage as sma
-
+from pframework import TrafficPredictor
 
 class TesterSimpleMovingAverage(TestCase):
 
@@ -18,11 +19,4 @@ class TesterSimpleMovingAverage(TestCase):
         self.assertIsNotNone(result)
         self.assertEquals(936.7016218121252, result[-1, 1])
         self.assertEquals(1097.360228285625, result[0, 1])
-
-    def test_convert_to_dataframe(self):
-        SMA = sma.SimpleMovingAverage()
-        result = SMA.call_model(to_df=True)
-        self.assertIsNotNone(result)
-        self.assertEquals(936.7016218121252, result.iat[-1, 0])
-        self.assertEquals(1097.360228285625, result.iat[0, 0])
 
