@@ -18,6 +18,7 @@ from os import path, remove
 from root import ROOT_DIR
 sys.path.append(path.join(ROOT_DIR,'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
+import menu
 
 class TrafficPredictor:
 
@@ -70,7 +71,7 @@ class TrafficPredictor:
     def write_data_to_database(self, model_name, df):
         df.to_csv(path.join(RESOURCES_DIR, model_name + "_predicted.csv"))
         self._data_writer.csv_file_to_db(measurement_to_use=model_name + '_predicted',
-                                         new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted"))
+                                         new_csv_file_name=path.join(RESOURCES_DIR, model_name + "_predicted.csv"))
         remove(path.join(RESOURCES_DIR, model_name + "_predicted.csv"))
 
     def nparray_to_dataframe(self, nparray_data):
