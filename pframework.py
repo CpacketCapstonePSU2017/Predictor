@@ -83,5 +83,5 @@ class TrafficPredictor:
         return df
 
 
-predictor = TrafficPredictor()
-predictor.main()
+# predictor = TrafficPredictor()
+# predictor.main()
