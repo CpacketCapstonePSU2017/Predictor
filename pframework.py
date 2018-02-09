@@ -19,12 +19,19 @@ from root import ROOT_DIR
 sys.path.append(path.join(ROOT_DIR,'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
 
+
 class TrafficPredictor:
-    _default_stride = Stride.WEEKLY
-    _num_of_series = 8
+    _default_stride = None
+    _num_of_series = None
     _selected_model = None
-    _data_writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
-                             password=db_config.password, database="predicted_data")
+    _data_writer = None
+
+    def __init__(self, database="predicted_data"):
+        self._default_stride = Stride.WEEKLY
+        self._num_of_series = 8
+        self._selected_model = None
+        self._data_writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
+                                 password=db_config.password, database=database)
 
     def main(self):
         print("Welcome to the Traffic Predictor!")
