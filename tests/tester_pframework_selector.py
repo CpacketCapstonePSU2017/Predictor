@@ -22,8 +22,10 @@ class TesterPframeworkSelector(unittest.TestCase):
             self.predictor.main()
             client = InfluxDBClient(host=db_config.host, port=db_config.port, username=db_config.username,
                                     password=db_config.password, database='test_predicted_data')
+            client.create_database('test_predicted_data')
             result = client.query("select * from SimpleMovingAverage_predicted")
             self.assertIsNotNone(result)
+            client.drop_database('test_predicted_data')
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
 
