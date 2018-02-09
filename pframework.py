@@ -18,7 +18,7 @@ from os import path, remove
 from root import ROOT_DIR
 sys.path.append(path.join(ROOT_DIR,'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
-import menu
+# import menu
 
 class TrafficPredictor:
 
