@@ -1,18 +1,12 @@
-from enum import Enum
 import numpy as np
 import pandas as pd
 from scipy import signal
 import root
 import sys
 from os import path
-from predictor_resources.config import RESOURCES_DIR
+from predictor_resources.config import RESOURCES_DIR, Stride
 sys.path.append(path.join(root.ROOT_DIR, 'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
-
-
-class Stride(Enum):
-    DAILY = 96
-    WEEKLY = 672
 
 
 class SimpleMovingAverage:

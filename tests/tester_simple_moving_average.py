@@ -1,7 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch
 from PModules.SimpleMovingAverage import SimpleMovingAverage as sma
-from pframework import TrafficPredictor
 
 class TesterSimpleMovingAverage(TestCase):
 

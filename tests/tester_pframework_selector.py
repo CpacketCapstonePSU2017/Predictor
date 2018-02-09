@@ -10,7 +10,7 @@ class TesterPframeworkSelector(unittest.TestCase):
     @patch('builtins.input')
     def test_selecting_model_test(self, mocked_input):
         try:
-            mocked_input.side_effect = ['0','n']
+            mocked_input.side_effect = ['n', '0', 'n']
             self.predictor.main()
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
@@ -18,12 +18,11 @@ class TesterPframeworkSelector(unittest.TestCase):
     @patch('builtins.input')
     def test_writing_to_db(self, mocked_input):
         try:
-            mocked_input.side_effect = ['0', 'y']
+            mocked_input.side_effect = ['n', '0', 'y']
             self.predictor.main()
             client = InfluxDBClient(host=db_config.host, port=db_config.port, username=db_config.username,
-                                    password=db_config.password, database='predicted_data')
+                                    password=db_config.password, database='test_predicted_data')
             result = client.query("select * from SimpleMovingAverage_predicted")
-            print(result)
             self.assertIsNotNone(result)
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
