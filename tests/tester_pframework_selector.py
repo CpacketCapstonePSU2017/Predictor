@@ -1,16 +1,31 @@
 import unittest
 from unittest.mock import patch
 from pframework import TrafficPredictor
-
+from influxdb import InfluxDBClient
+from predictor_resources import db_config
 
 class TesterPframeworkSelector(unittest.TestCase):
-    predictor = TrafficPredictor()
+    predictor = TrafficPredictor(database='test_predicted_data')
 
     @patch('builtins.input')
     def test_selecting_model_test(self, mocked_input):
         try:
-            mocked_input.side_effect = ['0']
+            mocked_input.side_effect = ['n', '0', 'n']
             self.predictor.main()
+        except Exception as error:
+            self.fail("Test: Failed - {0}\n".format(error))
+
+    @patch('builtins.input')
+    def test_writing_to_db(self, mocked_input):
+        try:
+            mocked_input.side_effect = ['n', '0', 'y']
+            self.predictor.main()
+            client = InfluxDBClient(host=db_config.host, port=db_config.port, username=db_config.username,
+                                    password=db_config.password, database='test_predicted_data')
+            # client.create_database('test_predicted_data')
+            result = client.query("select * from SimpleMovingAverage_predicted")
+            self.assertIsNotNone(result)
+            client.drop_database('test_predicted_data')
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
 

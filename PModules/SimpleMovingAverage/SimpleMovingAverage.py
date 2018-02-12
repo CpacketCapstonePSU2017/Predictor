@@ -1,21 +1,12 @@
-from enum import Enum
 import numpy as np
 import pandas as pd
 from scipy import signal
-
 import root
 import sys
 from os import path
-from predictor_resources.config import RESOURCES_DIR
+from predictor_resources.config import RESOURCES_DIR, Stride
 sys.path.append(path.join(root.ROOT_DIR, 'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
-
-
-
-
-class Stride(Enum):
-    DAILY = 96
-    WEEKLY = 672
 
 
 class SimpleMovingAverage:
@@ -35,6 +26,7 @@ class SimpleMovingAverage:
 
     formattedInput = []
     lastDate = ""
+    data_column_name = ""
 
     def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.defaultStride = default_stride
@@ -81,6 +73,11 @@ class SimpleMovingAverage:
             predictions = numpy_array[:, -1]
 
         # Creates a numpy array(One week long), because the function is inclusive getting rid of the first element
-        result_datetimes = pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min')[1:]
+        result_datetimes = np.array(pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min'))[1:]
+        nparray_data = np.array([result_datetimes, predictions]).transpose()
+        self.data_column_name = self.returned_data_frame.columns[1]
+        return nparray_data
 
-        return np.array([result_datetimes, predictions]).transpose()
+    def get_data_column_name(self):
+        return self.data_column_name
+
