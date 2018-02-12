@@ -15,7 +15,9 @@ before_install:
 
 install:
   - conda install --yes python=$PYTHON_VERSION pip pandas
-  - pip install scipy #numpy scipy scikit-learn statsmodels theano keras tensorflow nose
+  - pip install scipy
+  - pip install scikit-learn
+  - pip install matplotlib # statsmodels theano keras tensorflow nose
   - pip install numpy
   - pip install --upgrade git+git://github.com/influxdata/influxdb-python.git #InfluxDB
   - pip install influxdb
