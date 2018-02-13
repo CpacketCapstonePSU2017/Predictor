@@ -3,6 +3,7 @@ from PModules.ErrorAnalysis import ErrorAnalysis
 from predictor_resources.config import Stride
 from unittest import TestCase
 
+
 class TesterErroranalysis(TestCase):
     def test_metrics_generation_weekly_stride(self):
         model_predictions = SimpleMovingAverage.SimpleMovingAverage(default_stride=Stride.DAILY, window_length=7)
