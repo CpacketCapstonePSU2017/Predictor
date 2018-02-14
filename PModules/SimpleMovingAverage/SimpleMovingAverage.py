@@ -73,7 +73,7 @@ class SimpleMovingAverage:
             predictions = numpy_array[:, -1]
 
         # Creates a numpy array(One week long), because the function is inclusive getting rid of the first element
-        result_datetimes = np.array(pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min'))[1:]
+        result_datetimes = pd.date_range(self.lastDate, periods=Stride.WEEKLY.value+1, freq='15min')[1:]
         nparray_data = np.array([result_datetimes, predictions]).transpose()
         self.data_column_name = self.returned_data_frame.columns[1]
         return nparray_data
