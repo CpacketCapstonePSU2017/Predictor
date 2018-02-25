@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from csv_to_dataframe import csv_to_dataframe
+#import matplotlib.pyplot as plt
+import io_framework.csv_to_dataframe as cdf
 from resources.config import RESOURCES_DIR
 import os
 
@@ -58,30 +59,26 @@ class HoltWinters:
 
     def call_model(self):
         # build dataframe
-        df = csv_to_dataframe(self.default_csv_filename, 0, 21, False, [1])
+        df = cdf.csv_to_dataframe("/home/pirate/Desktop/AccessPoint1Incoming.csv", 0, 29474, False, [1])
         series = list(df.values.flatten())
         # FIXME: remove debug code
         print(series)
-
-        # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
-        self.default_series = series
-
-        # call triple_exponential_smoothing with series = byte counts column in dataframe
+        print(len(series))  # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
+        self.default_series = series  # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
                                                           self.default_alpha, self.default_beta, self.default_gamma,
                                                           self.default_num_predictions)
         # FIXME: remove debug code
         print(smooth_series)
         print(len(smooth_series))
-
-        # pass back series with N new predicted results
+        #plt.plot(smooth_series)
+        #plt.ylabel('some numbers')
+        #plt.show()  # pass back series with N new predicted results
         # generate N new new sequential timestamps (per 15 min)
         # assign new timestamps to datapoints
         # append new timestamp:datapoint pairs to original dataframe
         # pass back completed dataframe or generate new csv file.
-        return 1
+        return 1  # FIXME: Remove this test code at end. Only for testing class
 
-
-# FIXME: Remove this test code at end. Only for testing class
-test = HoltWinters(None, 2, 0.716, 0.029, 0.993, 4, 'temp.csv')
+test = HoltWinters(None, 672, 0.916, 0.929, 0.993, 1, 'temp.csv')
 test.call_model()
