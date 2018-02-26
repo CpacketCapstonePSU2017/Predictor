@@ -60,25 +60,36 @@ class HoltWinters:
     def call_model(self):
         # build dataframe
         df = cdf.csv_to_dataframe("/home/pirate/Desktop/AccessPoint1Incoming.csv", 0, 29474, False, [1])
-        series = list(df.values.flatten())
-        # FIXME: remove debug code
-        print(series)
-        print(len(series))  # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
-        self.default_series = series  # call triple_exponential_smoothing with series = byte counts column in dataframe
+        #df = cdf.csv_to_dataframe(self.default_csv_filename, 0, 4, False, [1])
+
+        # create n array from dataframe
+        self.default_series = np.array(df.values.flatten())
+        #FIXME: remove later
+        print(self.default_series)
+
+        # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
+
+        # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
                                                           self.default_alpha, self.default_beta, self.default_gamma,
                                                           self.default_num_predictions)
         # FIXME: remove debug code
         print(smooth_series)
-        print(len(smooth_series))
+
         #plt.plot(smooth_series)
         #plt.ylabel('some numbers')
         #plt.show()  # pass back series with N new predicted results
         # generate N new new sequential timestamps (per 15 min)
         # assign new timestamps to datapoints
+
         # append new timestamp:datapoint pairs to original dataframe
+        # FIXME: remove debug code
+        self.default_series = np.append(self.default_series, smooth_series)
+        print(self.default_series)
+
         # pass back completed dataframe or generate new csv file.
         return 1  # FIXME: Remove this test code at end. Only for testing class
 
 test = HoltWinters(None, 672, 0.916, 0.929, 0.993, 1, 'temp.csv')
+#test = HoltWinters(None, 2, 0.916, 0.929, 0.993, 4, 'temp.csv')
 test.call_model()
