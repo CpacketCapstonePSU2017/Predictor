@@ -31,8 +31,6 @@ class ExpSmoothing:
         if weeks_to_count is 0:
             print("Not enough data!")
             return False
-        #for n in range(1, len(series)):
-        #    result.append(alpha * series[n-672] + (1 - alpha) * series[n])
         for n in range(0, 672):
             total = 0
             for i in range(0, weeks_to_count):
