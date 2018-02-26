@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-#import matplotlib.pyplot as plt
+#import matplotlib.pyplot
 import io_framework.csv_to_dataframe as cdf
 from resources.config import RESOURCES_DIR
 import os
@@ -27,11 +27,20 @@ class ExpSmoothing:
         length = len(series)
         weeks_to_count = math.floor(length/672)
         weights = self.gen_weights(alpha, weeks_to_count)
+
         if weeks_to_count is 0:
             print("Not enough data!")
             return False
-        for n in range(1, len(series)):
-            result.append(alpha * series[n-672] + (1 - alpha) * series[n])
+        #for n in range(1, len(series)):
+        #    result.append(alpha * series[n-672] + (1 - alpha) * series[n])
+        for n in range(0, 672):
+            total = 0
+            for i in range(0, weeks_to_count):
+                wght = weights[i]
+                offset = n + (i * 672)
+                data = series[offset]
+                total = total + (wght * data)
+            result.append(total)
         return result
 
     # >>> exponential_smoothing(series, 0.1)
@@ -52,9 +61,9 @@ class ExpSmoothing:
         # FIXME: remove debug code
         print(smooth_series)
         print(len(smooth_series))
-        #plt.plot(smooth_series)
-        #plt.ylabel('some numbers')
-        #plt.show()  # pass back series with N new predicted results
+        #matplotlib.pyplot.plot(smooth_series)
+        #matplotlib.pyplot.ylabel('some numbers')
+        #matplotlib.pyplot.show()  # pass back series with N new predicted results
         # generate N new new sequential timestamps (per 15 min)
         # assign new timestamps to datapoints
         # append new timestamp:datapoint pairs to original dataframe
