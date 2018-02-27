@@ -1,7 +1,6 @@
 from unittest import TestCase
 from PModules.SimpleMovingAverage import SimpleMovingAverage as sma
 
-
 class TesterSimpleMovingAverage(TestCase):
 
     def test_default_stride(self):
@@ -18,3 +17,4 @@ class TesterSimpleMovingAverage(TestCase):
         self.assertIsNotNone(result)
         self.assertEquals(936.7016218121252, result[-1, 1])
         self.assertEquals(1097.360228285625, result[0, 1])
+
