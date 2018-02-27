@@ -27,18 +27,28 @@ class ExpSmoothing:
         length = len(series)
         weeks_to_count = math.floor(length/672)
         weights = self.gen_weights(alpha, weeks_to_count)
+        ex_weights = self.gen_weights(alpha, weeks_to_count+1)
+        excess = length % 672
 
         if weeks_to_count is 0:
             print("Not enough data!")
             return False
         for n in range(0, 672):
             total = 0
-            for i in range(0, weeks_to_count):
-                wght = weights[i]
-                offset = n + (i * 672)
-                data = series[offset]
-                total = total + (wght * data)
-            result.append(total)
+            if excess > n:
+                for i in range(weeks_to_count, 0, -1):
+                    wght = ex_weights[i]
+                    offset = n + (i * 672)
+                    data = series[offset]
+                    total = total + (wght * data)
+                result.append(total)
+            else:
+                for i in range(weeks_to_count - 1, 0, -1):
+                    wght = weights[i]
+                    offset = n + (i * 672)
+                    data = series[offset]
+                    total = total + (wght * data)
+                result.append(total)
         return result
 
     # >>> exponential_smoothing(series, 0.1)
@@ -69,5 +79,5 @@ class ExpSmoothing:
         return 1  # FIXME: Remove this test code at end. Only for testing class
 
 
-test = ExpSmoothing(None, 0.75, 'temp.csv')
+test = ExpSmoothing(None, 0.2, 'temp.csv')
 test.call_model()
