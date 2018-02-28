@@ -81,17 +81,16 @@ class HoltWinters:
         #plt.plot(smooth_series)
         #plt.ylabel('some numbers')
         #plt.show()  # pass back series with N new predicted results
-        # generate N new new sequential timestamps (per 15 min)
-        # assign new timestamps to datapoints
 
-        # append new timestamp:datapoint pairs to original series
+        # append predicted values to known values
         # FIXME: remove debug code
         self.default_series = np.append(self.default_series, smooth_series)
         #print(self.default_series)
 
-        # create a dataframe from appended array
+        # generate N new new sequential timestamps (per 15 min)
         start_date = str(datetime.date.today())
         result_datetimes = pd.date_range(start_date, periods=len(self.default_series)+1, freq='15min')[1:]
+        # assign new timestamps to datapoints
         nparray_data = np.array([result_datetimes, self.default_series]).transpose()
         #self.data_column_name = self.returned_data_frame.columns[1]
         # FIXME: remove debug code
