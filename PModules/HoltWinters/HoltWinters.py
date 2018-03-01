@@ -4,6 +4,7 @@ import pandas as pd
 import io_framework.csv_to_dataframe as cdf
 from resources.config import RESOURCES_DIR
 import os
+import datetime
 
 class HoltWinters:
 
@@ -15,6 +16,7 @@ class HoltWinters:
         self.default_gamma = gamma
         self.default_num_predictions = n_preds
         self.default_csv_filename = os.path.join(RESOURCES_DIR, csv_filename)
+        self.data_column_name = ""
 
     def initial_trend(Self, series, slen):
         sum = 0.0
@@ -59,13 +61,13 @@ class HoltWinters:
 
     def call_model(self):
         # build dataframe
-        df = cdf.csv_to_dataframe("/home/pirate/Desktop/AccessPoint1Incoming.csv", 0, 29474, False, [1])
-        #df = cdf.csv_to_dataframe(self.default_csv_filename, 0, 4, False, [1])
+        #df = cdf.csv_to_dataframe("/home/pirate/Desktop/AccessPoint1Incoming.csv", 0, 29474, False, [1])
+        df = cdf.csv_to_dataframe(self.default_csv_filename, 0, 4, False, [1])
 
         # create n array from dataframe
         self.default_series = np.array(df.values.flatten())
         #FIXME: remove later
-        print(self.default_series)
+        #print(self.default_series)
 
         # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
 
@@ -74,22 +76,33 @@ class HoltWinters:
                                                           self.default_alpha, self.default_beta, self.default_gamma,
                                                           self.default_num_predictions)
         # FIXME: remove debug code
-        print(smooth_series)
+        #print(smooth_series)
 
         #plt.plot(smooth_series)
         #plt.ylabel('some numbers')
         #plt.show()  # pass back series with N new predicted results
-        # generate N new new sequential timestamps (per 15 min)
-        # assign new timestamps to datapoints
 
-        # append new timestamp:datapoint pairs to original dataframe
+        # append predicted values to known values
         # FIXME: remove debug code
         self.default_series = np.append(self.default_series, smooth_series)
-        print(self.default_series)
+        #print(self.default_series)
+
+        # generate N new new sequential timestamps (per 15 min)
+        start_date = str(datetime.date.today())
+        result_datetimes = pd.date_range(start_date, periods=len(self.default_series)+1, freq='15min')[1:]
+        # assign new timestamps to datapoints
+        nparray_data = np.array([result_datetimes, self.default_series]).transpose()
+        #self.data_column_name = self.returned_data_frame.columns[1]
+        # FIXME: remove debug code
+        print(nparray_data)
 
         # pass back completed dataframe or generate new csv file.
         return 1  # FIXME: Remove this test code at end. Only for testing class
 
-test = HoltWinters(None, 672, 0.916, 0.929, 0.993, 1, 'temp.csv')
-#test = HoltWinters(None, 2, 0.916, 0.929, 0.993, 4, 'temp.csv')
+    def get_data_column_name(self):
+        return self.data_column_name
+
+
+#test = HoltWinters(None, 672, 0.916, 0.929, 0.993, 1, 'AccessPoint1Incoming.csv')
+test = HoltWinters(None, 2, 0.916, 0.929, 0.993, 4, 'temp.csv')
 test.call_model()
