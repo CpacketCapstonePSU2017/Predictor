@@ -1,22 +1,24 @@
 import numpy as np
 import pandas as pd
-#import matplotlib.pyplot as plt
-import io_framework.csv_to_dataframe as cdf
-from resources.config import RESOURCES_DIR
-import os
+import matplotlib.pyplot as plt
+import io_framework.csv_fill_data_gaps as fg
+from io_framework.csv_writer import CsvWriter
+from predictor_resources.config import RESOURCES_DIR
+from os import path
 import datetime
 
 class HoltWinters:
 
-    def __init__(self, series, slen, alpha, beta, gamma, n_preds, csv_filename):
+    def __init__(self, series, n_preds, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.default_series = series
         self.default_stride_length = slen
         self.default_alpha = alpha
         self.default_beta = beta
         self.default_gamma = gamma
         self.default_num_predictions = n_preds
-        self.default_csv_filename = os.path.join(RESOURCES_DIR, csv_filename)
         self.data_column_name = ""
+        self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="", new_cvs_file_name="")
+        self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0) # change this hard code
 
     def initial_trend(Self, series, slen):
         sum = 0.0
@@ -40,69 +42,53 @@ class HoltWinters:
         return seasonals
 
     def triple_exponential_smoothing(self, series, slen, alpha, beta, gamma, n_preds):
-        result = []
+        result = list()
         seasonals = self.initial_seasonal_components(series, slen)
         for i in range(len(series) + n_preds):
             if i == 0:  # initial values
                 smooth = series[0]
                 trend = self.initial_trend(series, slen)
-                result.append(series[0])
+                result.append(float(series[0]))
                 continue
             if i >= len(series):  # we are forecasting
                 m = i - len(series) + 1
-                result.append((smooth + m * trend) + seasonals[i % slen])
+                new_level = (smooth + m * trend) + float(seasonals[i % slen])
+                new_level = float(0) if new_level < 0 else new_level
+                result.append(new_level)
             else:
                 val = series[i]
                 last_smooth, smooth = smooth, alpha * (val - seasonals[i % slen]) + (1 - alpha) * (smooth + trend)
                 trend = beta * (smooth - last_smooth) + (1 - beta) * trend
                 seasonals[i % slen] = gamma * (val - smooth) + (1 - gamma) * seasonals[i % slen]
-                result.append(smooth + trend + seasonals[i % slen])
+                #result_to_append = smooth + trend + seasonals[i % slen]
+                #result = np.append(result, result_to_append)
         return result
 
     def call_model(self):
         # build dataframe
-        #df = cdf.csv_to_dataframe("/home/pirate/Desktop/AccessPoint1Incoming.csv", 0, 29474, False, [1])
-        df = cdf.csv_to_dataframe(self.default_csv_filename, 0, 4, False, [1])
+        df = fg.fill_data_gaps(self.returned_data_frame.shape[0], init_data=self.returned_data_frame)
+        df['avg_hrcrx_max_byt'] = df['avg_hrcrx_max_byt'].fillna(0)
 
         # create n array from dataframe
-        self.default_series = np.array(df.values.flatten())
-        #FIXME: remove later
-        #print(self.default_series)
-
-        # pick desired seasonal length, alpha, beta, gamma and desired number of predicted points
+        tmp_series = list(df.values.flatten())
+        self.default_series = tmp_series[1::2]
 
         # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
                                                           self.default_alpha, self.default_beta, self.default_gamma,
                                                           self.default_num_predictions)
-        # FIXME: remove debug code
-        #print(smooth_series)
-
-        #plt.plot(smooth_series)
-        #plt.ylabel('some numbers')
-        #plt.show()  # pass back series with N new predicted results
-
-        # append predicted values to known values
-        # FIXME: remove debug code
-        self.default_series = np.append(self.default_series, smooth_series)
-        #print(self.default_series)
+        combined_data = np.append(self.default_series, smooth_series)
 
         # generate N new new sequential timestamps (per 15 min)
-        start_date = str(datetime.date.today())
-        result_datetimes = pd.date_range(start_date, periods=len(self.default_series)+1, freq='15min')[1:]
+        start_date = datetime.date.today()
+        result_datetimes = pd.date_range(start_date, periods=len(smooth_series), freq='15min')[0:]
+
         # assign new timestamps to datapoints
-        nparray_data = np.array([result_datetimes, self.default_series]).transpose()
-        #self.data_column_name = self.returned_data_frame.columns[1]
-        # FIXME: remove debug code
-        print(nparray_data)
+        nparray_data = np.array([result_datetimes, smooth_series]).transpose()
 
         # pass back completed dataframe or generate new csv file.
-        return 1  # FIXME: Remove this test code at end. Only for testing class
+        return nparray_data
 
     def get_data_column_name(self):
         return self.data_column_name
 
-
-#test = HoltWinters(None, 672, 0.916, 0.929, 0.993, 1, 'AccessPoint1Incoming.csv')
-test = HoltWinters(None, 2, 0.916, 0.929, 0.993, 4, 'temp.csv')
-test.call_model()
