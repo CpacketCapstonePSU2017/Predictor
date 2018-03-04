@@ -8,7 +8,7 @@ class TesterPframeworkSelector(unittest.TestCase):
     predictor = TrafficPredictor(database='test_predicted_data')
 
     @patch('builtins.input')
-    def test_selecting_model_test(self, mocked_input):
+    def selecting_model_test(self, mocked_input):
         try:
             mocked_input.side_effect = ['0', 'n', 'n']
             self.predictor.main()
@@ -16,7 +16,7 @@ class TesterPframeworkSelector(unittest.TestCase):
             self.fail("Test: Failed - {0}\n".format(error))
 
     @patch('builtins.input')
-    def test_writing_to_db(self, mocked_input):
+    def writing_to_db(self, mocked_input):
         try:
             mocked_input.side_effect = ['0', 'n', 'y']
             self.predictor.main()
