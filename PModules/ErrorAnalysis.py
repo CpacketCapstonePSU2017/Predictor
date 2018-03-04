@@ -14,7 +14,7 @@ from io_framework.csv_writer import CsvWriter
 
 class ErrorAnalysis:
 
-    def __init__(self, predicted, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, predicted, data_file="access_Point_1_incoming.csv"):
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="",
                                    new_cvs_file_name="")
         self.predictedValues = predicted
