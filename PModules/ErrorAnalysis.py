@@ -19,8 +19,6 @@ class ErrorAnalysis:
                                    new_cvs_file_name="")
         self.predictedValues = predicted
         self.actualValues = self.csvWriter.csv_file_to_dataframe_date_selection(path.join(RESOURCES_DIR, data_file), pd.Timestamp(predicted[0, 0]), pd.Timestamp(predicted[-1, 0]))
-        print(path.join(RESOURCES_DIR, data_file))
-        print(self.actualValues)
     def compute_error(self):
         actual = self.actualValues["avg_hrcrx_max_byt"].tolist()
         predicted = self.predictedValues[:, 1].tolist()
