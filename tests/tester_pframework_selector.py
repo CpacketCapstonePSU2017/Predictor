@@ -11,7 +11,7 @@ class TesterPframeworkSelector(unittest.TestCase):
     def test_selecting_model_test(self, mocked_input):
         print("selecting_model_test")
         try:
-            mocked_input.side_effect = ['0', 'n', 'n']
+            mocked_input.side_effect = ['0', 'n', 'n', 'n']
             self.predictor.main()
         except Exception as error:
             self.fail("Test: Failed - {0}\n".format(error))
@@ -20,7 +20,7 @@ class TesterPframeworkSelector(unittest.TestCase):
     def test_writing_to_db(self, mocked_input):
         print("writing_to_db")
         try:
-            mocked_input.side_effect = ['0', 'n', 'y']
+            mocked_input.side_effect = ['0', 'n', 'n', 'y']
             self.predictor.main()
             client = InfluxDBClient(host=db_config.host, port=db_config.port, username=db_config.username,
                                     password=db_config.password, database='test_predicted_data')
