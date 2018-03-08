@@ -28,7 +28,7 @@ class SimpleMovingAverage:
     lastDate = ""
     data_column_name = ""
 
-    def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="access_Point_1_incoming.csv"):
         self.defaultStride = default_stride
         self.windowLength = window_length
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="",
