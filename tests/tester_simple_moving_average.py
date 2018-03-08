@@ -15,6 +15,6 @@ class TesterSimpleMovingAverage(TestCase):
         SMA = sma.SimpleMovingAverage()
         result = SMA.call_model()
         self.assertIsNotNone(result)
-        self.assertEquals(936.7016218121252, result[-1, 1])
-        self.assertEquals(1097.360228285625, result[0, 1])
+        self.assertEquals(1463.7009935823864, result[-1, 1])
+        self.assertEquals(754.2621777, result[0, 1])
 
