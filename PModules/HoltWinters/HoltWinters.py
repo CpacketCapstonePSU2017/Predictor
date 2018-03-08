@@ -9,13 +9,14 @@ import datetime
 
 class HoltWinters:
 
-    def __init__(self, series, n_preds, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, series, n_preds, n_weeks, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.default_series = series
         self.default_stride_length = slen
         self.default_alpha = alpha
         self.default_beta = beta
         self.default_gamma = gamma
         self.default_num_predictions = n_preds
+        self.default_num_train_weeks = n_weeks
         self.data_column_name = ""
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="", new_cvs_file_name="")
         self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0) # change this hard code
@@ -71,7 +72,11 @@ class HoltWinters:
 
         # create n array from dataframe
         tmp_series = list(df.values.flatten())
-        self.default_series = tmp_series[1::2]
+        tmp_default_series = tmp_series[1::2]
+
+        # calculate values needed to train on based on weeks
+        tmp_training_count = self.default_num_train_weeks * 672
+        self.default_series = tmp_default_series[0:tmp_training_count]
 
         # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
@@ -91,4 +96,3 @@ class HoltWinters:
 
     def get_data_column_name(self):
         return self.data_column_name
-
