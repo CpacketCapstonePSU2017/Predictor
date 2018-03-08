@@ -8,6 +8,11 @@ PModules                root folder for all models
         model_name      model_name.py file
             |
             model_name  model_name class
+
+    Every model should have:
+    - A constructor that defines a default parameters passed
+    - set_parameters() function prompting user to change parameters (if needed)
+    - call_model() function doing all of the prediction. Should return nparray
 """
 import pandas as pd
 from predictor_resources.config import models, RESOURCES_DIR, Stride
@@ -18,7 +23,7 @@ from os import path, remove
 from root import ROOT_DIR
 sys.path.append(path.join(ROOT_DIR,'CPacket-Common-Modules'))
 from io_framework.csv_writer import CsvWriter
-
+from PModules.ErrorAnalysis import ErrorAnalysis
 
 class TrafficPredictor:
     _default_stride = None
@@ -48,8 +53,16 @@ class TrafficPredictor:
         else:
             try:
                 model = models[int(selection)]
-                df = self.nparray_to_dataframe(self.call_model(model))
-                print("Would you like to write predicted data to database?"
+                print("Please, wait...")
+                np = self.call_model(model)
+                df = self.nparray_to_dataframe(np)
+                print("Finished prediction")
+                print("Would you like to run Error analysis on the predicted data? [y]/[n]")
+                selection = input("Prompt: ")
+                if selection.lower() == 'y':
+                    err_analysis = ErrorAnalysis(np)
+                    err_analysis.compute_error()
+                print("Would you like to write predicted data to database? [y]/[n]"
                       "\nIf selected [n] the data will be written to local csv file")
                 selection = input("Prompt: ")
                 if selection.lower() == 'y':
@@ -94,5 +107,3 @@ class TrafficPredictor:
         return df
 
 
-# predictor = TrafficPredictor()
-# predictor.main()
