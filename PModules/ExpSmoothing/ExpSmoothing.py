@@ -13,16 +13,22 @@ from io_framework.csv_writer import CsvWriter
 
 
 class ExpSmoothing:
-    def __init__(self, alpha=0.2, csv_filename=os.path.join(RESOURCES_DIR,'access_Point_1_incoming.csv')):
+    def __init__(self, alpha=0.2, csv_filename=os.path.join(RESOURCES_DIR,'access_Point_1_incoming.csv'),
+                 rows_to_use=None, error_array=0):
         """
         The parameters for this function are:
         :param series: The series passed in from call model.
         :param alpha: The alpha for N.
         :param csv_filename: The name of the CSV file with the series data.
+        :param rows_to_use: This parameter is the number of 15 minutes intervals wanted used
+        :param error_array: This is a flag that checks if you want a forecasted and actual value return along
+                            with the timestamps in the numpy array.
         """
         self.default_alpha = alpha
         self.default_csv_filename = os.path.join(RESOURCES_DIR, csv_filename)
         self.data_column_name = None
+        self.default_rtu = rows_to_use
+        self.error_array = error_array
 
     def set_parameters(self):
         """
@@ -45,9 +51,17 @@ class ExpSmoothing:
         :return: A list the size of number_of_weights with weights from alpha that approach 0.
         """
         ws =list()
-        for i in range(number_of_weights):
-            w = alpha * ((1-alpha)**i)
+        if alpha >= 1:
+
+            for i in range(0, number_of_weights-1):
+                w = 0
+                ws.append(w)
+            w = alpha
             ws.append(w)
+        else:
+            for i in range(number_of_weights):
+                w = alpha * ((1 - alpha) ** i)
+                ws.append(w)
         return ws
 
     def exponential_smoothing(self, series, alpha):
@@ -87,20 +101,44 @@ class ExpSmoothing:
 
     def call_model(self):
         # build dataframe
-        writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
-                                 password=db_config.password, database='predicted_data')
-        df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, usecols=[0,1])
-        series = list(df.values.flatten())
-        bytcts = series[1::2]
-        self.default_series = bytcts  # call triple_exponential_smoothing with series = byte counts column in dataframe
-        smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-        result_datetimes = pd.date_range(series[-2], periods=674, freq='15min')[1:]
-        nparray_data = np.array([result_datetimes, smooth_series]).transpose()
-        self.data_column_name = df.columns[1]
-        return nparray_data
+        if self.error_array is 0:
+            writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
+                               password=db_config.password, database='predicted_data')
+            df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, usecols=[0, 1])
+            series = list(df.values.flatten())
+            bytcts = series[1::2]
+            self.default_series = bytcts  # call triple_exponential_smoothing with series = byte counts column in dataframe
+            smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
+            result_datetimes = pd.date_range(series[-2], periods=674, freq='15min')[1:]
+            nparray_data = np.array([result_datetimes, smooth_series]).transpose()
+            self.data_column_name = df.columns[1]
+            return nparray_data
+        else:
+            writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
+                               password=db_config.password, database='predicted_data')
+            row_end = self.default_rtu + 672
+            df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=row_end, usecols=[0, 1])
+            series = list(df.values.flatten())
+            observed_val = series[-1345::2]
+            if len(observed_val) < 673:
+                return 0
+            bytcts = series[1::2][:self.default_rtu]
+            self.default_series = bytcts  # call triple_exponential_smoothing with series = byte counts column in dataframe
+            smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
+            result_datetimes = pd.date_range(series[-2], periods=674, freq='15min')[1:]
+            nparray_data = np.array([result_datetimes, smooth_series, observed_val]).transpose()
+            #print(smooth_series)
+            #print(observed_val)
+            self.data_column_name = df.columns[1]
+            return nparray_data
 
     def get_data_column_name(self):
         return self.data_column_name
 
-#test = ExpSmoothing()
+    def mean_absolute_error(self):
+        mad = ExpSmoothing()
+
+#test = ExpSmoothing(error_array=0)
 #print(test.call_model())
+#test_too = ExpSmoothing(rows_to_use=28225, error_array=1)
+#print(test_too.call_model())
