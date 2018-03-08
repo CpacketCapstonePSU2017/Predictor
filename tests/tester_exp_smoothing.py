@@ -7,5 +7,5 @@ class TesterExpSmoothing(TestCase):
         EPS = eps.ExpSmoothing()
         result = EPS.call_model()
         self.assertIsNotNone(result)
-        self.assertEquals(1463.7009935823864, result[-1, 1])
-        self.assertEquals(754.2621777, result[0, 1])
+        self.assertEquals(6624.2419795543365, result[-1, 1])
+        self.assertEquals(6162, result[0, 1])
