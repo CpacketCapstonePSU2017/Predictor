@@ -19,6 +19,44 @@ class HoltWinters:
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="", new_cvs_file_name="")
         self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0) # change this hard code
 
+    def set_parameters(self):
+        """
+        Asking user to change a parameters specific to a model, if needed
+        :return:
+        """
+        print("The default number of datapoints to predict: {}".format(self.default_num_predictions))
+        print("The default number of  training weeks: {}".format(self.default_num_train_weeks))
+        print("The default seasonal stride length: {}".format(self.default_stride_length))
+        print("The default alpha value: {}".format(self.default_alpha))
+        print("The default beta value: {}".format(self.default_beta))
+        print("The default gamma value: {}".format(self.default_gamma))
+        print("Would you like to set the parameters for Holt-Winters first? [y]/[n]")
+        selection = input("Prompt: ")
+        if selection.lower() == 'y':
+            print("Choose the number of datapoints to predict")
+            selection = input("Prompt: ")
+            self.default_num_predictions = int(selection)
+
+            print("Choose the number of training weeks")
+            selection = input("Prompt: ")
+            self.default_num_train_weeks = int(selection)
+
+            print("Choose the seasonal stride length")
+            selection = input("Prompt: ")
+            self.default_stride_length = int(selection)
+
+            print("Choose the desired alpha value")
+            selection = input("Prompt: ")
+            self.default_alpha = float(selection)
+
+            print("Choose the desired beta value")
+            selection = input("Prompt: ")
+            self.default_beta = float(selection)
+
+            print("Choose the desired gamma value")
+            selection = input("Prompt: ")
+            self.default_gamma = float(selection)
+
     def initial_trend(Self, series, slen):
         sum = 0.0
         for i in range(slen):
