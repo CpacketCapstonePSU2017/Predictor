@@ -28,7 +28,7 @@ class SimpleMovingAverage:
     lastDate = ""
     data_column_name = ""
 
-    def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, default_stride=Stride.WEEKLY, window_length=8, data_file="access_Point_1_incoming.csv"):
         self.defaultStride = default_stride
         self.windowLength = window_length
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="",
@@ -37,6 +37,31 @@ class SimpleMovingAverage:
         # Data returned as two columns. One with timeseries and other with bytecount values
         self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file)
                                             ,new_row_start=0, new_row_end=self.defaultStride.value * self.windowLength)
+
+    def set_parameters(self):
+        """
+        Asking user to change a parameters specific to a model, if needed
+        :return:
+        """
+        print("The default stride: {}".format(self.defaultStride.name))
+        print("The default number of  series: {}".format(self.windowLength))
+        print("Would you like to set the parameters for Simple Moving Average first? [y]/[n]")
+        selection = input("Prompt: ")
+        if selection.lower() == 'y':
+            print("Choose the stride (WEEKLY/DAILY): [W]/[D]")
+            selection = input("Prompt: ")
+            if selection.upper() == 'W':
+                self.defaultStride = Stride.WEEKLY
+            if selection.upper() == 'D':
+                self.defaultStride = Stride.DAILY
+            print("Choose the number of series.")
+            selection = input("Prompt: ")
+            if self.defaultStride == Stride.DAILY and int(selection) < 7:
+                print("You cannot use training set less than 7 days. It will be left as a default")
+            if self.defaultStride == Stride.WEEKLY and int(selection) > 52:
+                print("The number of series cannot exceed one year. It will be left as a default")
+            else:
+                self.windowLength = int(selection)
 
     def initialize_dataframe_output(self):
         # Input formatting for future calculation
