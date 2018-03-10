@@ -1,15 +1,13 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import io_framework.csv_fill_data_gaps as fg
 from io_framework.csv_writer import CsvWriter
 from predictor_resources.config import RESOURCES_DIR
 from os import path
-import datetime
 
 class HoltWinters:
 
-    def __init__(self, series, n_preds, n_weeks, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, series=None, n_preds=672, n_weeks=5, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
         self.default_series = series
         self.default_stride_length = slen
         self.default_alpha = alpha
@@ -49,7 +47,6 @@ class HoltWinters:
             if i == 0:  # initial values
                 smooth = series[0]
                 trend = self.initial_trend(series, slen)
-                result.append(float(series[0]))
                 continue
             if i >= len(series):  # we are forecasting
                 m = i - len(series) + 1
@@ -61,8 +58,6 @@ class HoltWinters:
                 last_smooth, smooth = smooth, alpha * (val - seasonals[i % slen]) + (1 - alpha) * (smooth + trend)
                 trend = beta * (smooth - last_smooth) + (1 - beta) * trend
                 seasonals[i % slen] = gamma * (val - smooth) + (1 - gamma) * seasonals[i % slen]
-                #result_to_append = smooth + trend + seasonals[i % slen]
-                #result = np.append(result, result_to_append)
         return result
 
     def call_model(self):
@@ -75,8 +70,10 @@ class HoltWinters:
         tmp_default_series = tmp_series[1::2]
 
         # calculate values needed to train on based on weeks
-        tmp_training_count = self.default_num_train_weeks * 672
-        self.default_series = tmp_default_series[0:tmp_training_count]
+        tmp_training_count = self.default_num_train_weeks * self.default_stride_length
+        start_training_data_index = len(tmp_default_series)-tmp_training_count
+        end_training_data_index = len(tmp_default_series) - self.default_stride_length
+        self.default_series = tmp_default_series[start_training_data_index:end_training_data_index]
 
         # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
@@ -85,7 +82,7 @@ class HoltWinters:
         combined_data = np.append(self.default_series, smooth_series)
 
         # generate N new new sequential timestamps (per 15 min)
-        start_date = datetime.date.today()
+        start_date = df[''][end_training_data_index]
         result_datetimes = pd.date_range(start_date, periods=len(smooth_series), freq='15min')[0:]
 
         # assign new timestamps to datapoints
