@@ -7,7 +7,7 @@ from os import path
 
 class HoltWinters:
 
-    def __init__(self, series=None, n_preds=672, n_weeks=5, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="AccessPoint#3(Aruba3)Outgoing.csv"):
+    def __init__(self, series=None, n_preds=672, n_weeks=5, slen=672, alpha=0.816, beta=0.0001, gamma=0.993, data_file="access_Point_1_incoming.csv"):
         self.default_series = series
         self.default_stride_length = slen
         self.default_alpha = alpha
