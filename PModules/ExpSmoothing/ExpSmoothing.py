@@ -70,7 +70,7 @@ class ExpSmoothing:
         :param alpha: The starting weight.
         :return:
         """
-        result = [series[0]]
+        result = [series[-673]]
         length = len(series)
         weeks_to_count = math.floor(length/672)
         weights = self.gen_weights(alpha, weeks_to_count)
@@ -80,7 +80,7 @@ class ExpSmoothing:
         if weeks_to_count is 0:
             print("Not enough data!")
             return False
-        for n in range(0, 672):
+        for n in range(0, 671):
             total = 0
             if excess > n:
                 for i in range(weeks_to_count, 0, -1):
@@ -108,7 +108,7 @@ class ExpSmoothing:
             bytcts = series[1::2]
             self.default_series = bytcts
             smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-            result_datetimes = pd.date_range(series[-2], periods=674, freq='15min')[1:]
+            result_datetimes = pd.date_range(series[-2], periods=672+1, freq='15min')[1:]
             nparray_data = np.array([result_datetimes, smooth_series]).transpose()
             self.data_column_name = df.columns[1]
             return nparray_data
@@ -118,13 +118,11 @@ class ExpSmoothing:
             row_end = self.default_rtu + 672
             df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=row_end, usecols=[0, 1])
             series = list(df.values.flatten())
-            observed_val = series[-1345::2]
-            if len(observed_val) < 673:
-                return 0
+            observed_val = series[-1343::2]
             bytcts = series[1::2][:self.default_rtu]
             self.default_series = bytcts
             smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-            result_datetimes = pd.date_range(series[-2], periods=674, freq='15min')[1:]
+            result_datetimes = pd.date_range(series[-2], periods=672+1, freq='15min')[1:]
             nparray_data = np.array([result_datetimes, smooth_series, observed_val]).transpose()
             self.data_column_name = df.columns[1]
             return nparray_data
