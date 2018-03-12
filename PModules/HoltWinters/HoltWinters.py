@@ -102,7 +102,7 @@ class HoltWinters:
         # build dataframe
         df = fg.fill_data_gaps(self.returned_data_frame.shape[0], init_data=self.returned_data_frame)
         df['avg_hrcrx_max_byt'] = df['avg_hrcrx_max_byt'].fillna(0)
-
+        self.data_column_name = df.columns[1]
         # create n array from dataframe
         tmp_series = list(df.values.flatten())
         tmp_default_series = tmp_series[1::2]
