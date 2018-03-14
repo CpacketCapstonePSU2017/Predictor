@@ -4,6 +4,15 @@ import io_framework.csv_fill_data_gaps as fg
 from io_framework.csv_writer import CsvWriter
 from predictor_resources.config import RESOURCES_DIR
 from os import path
+'''
+This code falls under an MIT Open Source License, for full licencing information please see the LICENSE file in repo
+
+The following code implements a triple exponential smoothing algorithm, formally knows as
+Holt-Winters. This is optimized for the use of time series data that is of a per 15 min form
+
+Credit for the implementation and algorithm used in the following code can be found in the 
+following blog post from Gregory Trubetskoy: https://grisha.org/blog/2016/01/29/triple-exponential-smoothing-forecasting/
+'''
 
 class HoltWinters:
 
@@ -19,6 +28,8 @@ class HoltWinters:
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="", new_cvs_file_name="")
         self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0) # change this hard code
 
+    # This method is what is called by the PFramework to display and allow the the parameters
+    # used to be set to something other than the default.
     def set_parameters(self):
         """
         Asking user to change a parameters specific to a model, if needed
@@ -57,12 +68,17 @@ class HoltWinters:
             selection = input("Prompt: ")
             self.default_gamma = float(selection)
 
+    # This finds the average trend across all seasonal values to used as
+    # the initial trend for the model
     def initial_trend(Self, series, slen):
         sum = 0.0
         for i in range(slen):
             sum += float(series[i + slen] - series[i]) / slen
         return sum / slen
 
+    # This calculates the initial seasonal values corresponding to each observed season.
+    # A explanation of the reasoning for this can be found
+    # here: http://www.itl.nist.gov/div898/handbook/pmc/section4/pmc435.htm
     def initial_seasonal_components(Self, series, slen):
         seasonals = {}
         season_averages = []
@@ -78,6 +94,8 @@ class HoltWinters:
             seasonals[i] = sum_of_vals_over_avg / n_seasons
         return seasonals
 
+    # This includes the full algorithm for implementing Holt-Winters.
+    # We can assume that the all factors (alpha, beta and gamma) have been defined
     def triple_exponential_smoothing(self, series, slen, alpha, beta, gamma, n_preds):
         result = list()
         seasonals = self.initial_seasonal_components(series, slen)
@@ -98,29 +116,30 @@ class HoltWinters:
                 seasonals[i % slen] = gamma * (val - smooth) + (1 - gamma) * seasonals[i % slen]
         return result
 
+    # This is the method called by the PFramework to initiate the generation of data using the Holt-Winters algorithm.
+    # What follows will correct the gaps within the provided time series dataset, pass this into the triple exponential
+    # smoothing algorithm and return the predicted datapoints (672 or one week) with their corresponding timestamps
     def call_model(self):
         # build dataframe
         df = fg.fill_data_gaps(self.returned_data_frame.shape[0], init_data=self.returned_data_frame)
         df['avg_hrcrx_max_byt'] = df['avg_hrcrx_max_byt'].fillna(0)
         self.data_column_name = df.columns[1]
-        # create n array from dataframe
+
+        # create list from dataframe to pass to triple exponential smoothing
         tmp_series = list(df.values.flatten())
         tmp_default_series = tmp_series[1::2]
 
-        # calculate values needed to train on based on weeks
+        # Build training set based on specified number of training weeks
         tmp_training_count = self.default_num_train_weeks * self.default_stride_length
-        start_training_data_index = len(tmp_default_series)-tmp_training_count
-        end_training_data_index = len(tmp_default_series) - self.default_stride_length
-        self.default_series = tmp_default_series[start_training_data_index:end_training_data_index]
+        self.default_series = tmp_default_series[0:tmp_training_count-1]
 
         # call triple_exponential_smoothing with series = byte counts column in dataframe
         smooth_series = self.triple_exponential_smoothing(self.default_series, self.default_stride_length,
                                                           self.default_alpha, self.default_beta, self.default_gamma,
                                                           self.default_num_predictions)
-        combined_data = np.append(self.default_series, smooth_series)
 
-        # generate N new new sequential timestamps (per 15 min)
-        start_date = df[''][end_training_data_index]
+        # generate 672 new new sequential timestamps (per 15 min) from start of prediction period
+        start_date = df[''][tmp_training_count]
         result_datetimes = pd.date_range(start_date, periods=len(smooth_series), freq='15min')[0:]
 
         # assign new timestamps to datapoints
