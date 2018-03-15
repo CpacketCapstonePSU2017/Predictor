@@ -13,7 +13,7 @@ from io_framework.csv_writer import CsvWriter
 
 class ExpSmoothing:
     def __init__(self, alpha=0.2, csv_filename=os.path.join(RESOURCES_DIR,'access_Point_1_incoming.csv'),
-                 rows_to_use=None):
+                 rows_to_use=3360):
         """
         The parameters for this function are:
         :param series: The series passed in from call model.
@@ -103,13 +103,19 @@ class ExpSmoothing:
         #This function returns a numpy array of timestamps and forecasted data, it call also return observed values
         writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
                            password=db_config.password, database='predicted_data')
-        row_end = self.default_rtu + 672
-        df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=row_end, usecols=[0, 1])
+        #row_end = self.default_rtu + 672
+        df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=self.default_rtu, usecols=[0, 1])
+        #if self.default_rtu is None:
+            #self.default_rtu = df.shape[0]
         series = list(df.values.flatten())
+        if self.default_rtu is None:
+            last_time_stamp = series[-2]
+        else:
+            last_time_stamp = series[(self.default_rtu-1)*2]
         bytcts = series[1::2][:self.default_rtu]
         self.default_series = bytcts
         smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-        result_datetimes = pd.date_range(series[self.default_rtu*2], periods=672, freq='15min')[0:]
+        result_datetimes = pd.date_range(last_time_stamp, periods=672+1, freq='15min')[1:]
         print(len(result_datetimes))
         nparray_data = np.array([result_datetimes, smooth_series]).transpose()
         self.data_column_name = df.columns[1]
