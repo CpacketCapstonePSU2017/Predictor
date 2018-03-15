@@ -13,21 +13,18 @@ from io_framework.csv_writer import CsvWriter
 
 class ExpSmoothing:
     def __init__(self, alpha=0.2, csv_filename=os.path.join(RESOURCES_DIR,'access_Point_1_incoming.csv'),
-                 rows_to_use=None, error_array=0):
+                 rows_to_use=None):
         """
         The parameters for this function are:
         :param series: The series passed in from call model.
         :param alpha: The alpha for N.
         :param csv_filename: The name of the CSV file with the series data.
         :param rows_to_use: This parameter is the number of 15 minutes intervals wanted used
-        :param error_array: This is a flag that checks if you want a forecasted and actual value return along
-                            with the timestamps in the numpy array.
         """
         self.default_alpha = alpha
         self.default_csv_filename = os.path.join(RESOURCES_DIR, csv_filename)
         self.data_column_name = None
         self.default_rtu = rows_to_use
-        self.error_array = error_array
 
     def set_parameters(self):
         """
@@ -40,7 +37,11 @@ class ExpSmoothing:
         if selection.lower() == 'y':
             print("Choose the alpha.")
             selection = input("Prompt: ")
-            self.default_alpha = int(selection)
+            self.default_alpha = float(selection)
+
+            print("Choose the number of datapoints to train on.")
+            selection = input("Prompt: ")
+            self.default_rtu = int(selection)
 
     def gen_weights(self, alpha, number_of_weights):
         """
@@ -100,32 +101,19 @@ class ExpSmoothing:
 
     def call_model(self):
         #This function returns a numpy array of timestamps and forecasted data, it call also return observed values
-        if self.error_array is 0:
-            writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
-                               password=db_config.password, database='predicted_data')
-            df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, usecols=[0, 1])
-            series = list(df.values.flatten())
-            bytcts = series[1::2]
-            self.default_series = bytcts
-            smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-            result_datetimes = pd.date_range(series[-2], periods=672+1, freq='15min')[1:]
-            nparray_data = np.array([result_datetimes, smooth_series]).transpose()
-            self.data_column_name = df.columns[1]
-            return nparray_data
-        else:
-            writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
-                               password=db_config.password, database='predicted_data')
-            row_end = self.default_rtu + 672
-            df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=row_end, usecols=[0, 1])
-            series = list(df.values.flatten())
-            observed_val = series[-1343::2]
-            bytcts = series[1::2][:self.default_rtu]
-            self.default_series = bytcts
-            smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
-            result_datetimes = pd.date_range(series[-2], periods=672+1, freq='15min')[1:]
-            nparray_data = np.array([result_datetimes, smooth_series, observed_val]).transpose()
-            self.data_column_name = df.columns[1]
-            return nparray_data
+        writer = CsvWriter(host=db_config.host, port=db_config.port, username=db_config.username,
+                           password=db_config.password, database='predicted_data')
+        row_end = self.default_rtu + 672
+        df = writer.csv_file_to_dataframe(new_filepath=self.default_csv_filename, new_row_end=row_end, usecols=[0, 1])
+        series = list(df.values.flatten())
+        bytcts = series[1::2][:self.default_rtu]
+        self.default_series = bytcts
+        smooth_series = self.exponential_smoothing(self.default_series, self.default_alpha)
+        result_datetimes = pd.date_range(series[self.default_rtu*2], periods=672, freq='15min')[0:]
+        print(len(result_datetimes))
+        nparray_data = np.array([result_datetimes, smooth_series]).transpose()
+        self.data_column_name = df.columns[1]
+        return nparray_data
 
     def get_data_column_name(self):
         return self.data_column_name

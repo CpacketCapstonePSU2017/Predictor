@@ -26,7 +26,7 @@ class HoltWinters:
         self.default_num_train_weeks = n_weeks
         self.data_column_name = ""
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="", new_cvs_file_name="")
-        self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0) # change this hard code
+        self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file), new_row_start=0)
 
     # This method is what is called by the PFramework to display and allow the the parameters
     # used to be set to something other than the default.

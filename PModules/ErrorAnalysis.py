@@ -24,16 +24,9 @@ class ErrorAnalysis:
         predicted = self.predictedValues[:, 1].tolist()
         count = 0
 
-        for i in range(len(actual)):
-            if actual[i] - predicted[i] > 2500:
-                actual[i] = 0
-                predicted[i] = 0
-                count += 1
-
         self.meanSquaredError = metrics.mean_squared_error(actual, predicted)
         self.meanAbsoluteError = metrics.mean_absolute_error(actual, predicted)
 
-        print("Number of outliers: " + str(count))
         print("Mean Squared Error: " + str(self.meanSquaredError))
         print("Mean Absolute Error: " + str(self.meanAbsoluteError))
 
