@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 from unittest import TestCase
 from PModules.SimpleMovingAverage import SimpleMovingAverage as sma
 
@@ -15,6 +18,6 @@ class TesterSimpleMovingAverage(TestCase):
         SMA = sma.SimpleMovingAverage()
         result = SMA.call_model()
         self.assertIsNotNone(result)
-        self.assertEquals(936.7016218121252, result[-1, 1])
-        self.assertEquals(1097.360228285625, result[0, 1])
+        self.assertEquals(2024.5, result[-1, 1])
+        self.assertEquals(1905.0, result[0, 1])
 
