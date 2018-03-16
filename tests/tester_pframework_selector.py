@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 import unittest
 from unittest.mock import patch
 from pframework import TrafficPredictor

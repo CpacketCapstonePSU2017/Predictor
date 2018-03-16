@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 from unittest import TestCase
 from PModules.SimpleMovingAverage import SimpleMovingAverage as sma
 

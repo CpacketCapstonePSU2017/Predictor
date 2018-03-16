@@ -1,4 +1,6 @@
 """
+    This code is released under an MIT license
+
 This script works with getting the data to or from InfluxDB.
 
      - You can send your own data, if you have a .csv file. It will go

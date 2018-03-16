@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 from os import path
 from enum import Enum
 # This argument is pointing to Resources folder, cross-platform

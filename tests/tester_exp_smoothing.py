@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 from unittest import TestCase
 from PModules.ExpSmoothing import ExpSmoothing as eps
 

@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 from PModules.SimpleMovingAverage import SimpleMovingAverage
 from PModules.ErrorAnalysis import ErrorAnalysis
 from predictor_resources.config import Stride

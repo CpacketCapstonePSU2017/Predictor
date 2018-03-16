@@ -5,7 +5,7 @@ from io_framework.csv_writer import CsvWriter
 from predictor_resources.config import RESOURCES_DIR
 from os import path
 '''
-This code is released under an MIT license
+    his code is released under an MIT license
 
 The following code implements a triple exponential smoothing algorithm, formally knows as
 Holt-Winters. This is optimized for the use of time series data that is of a per 15 min form

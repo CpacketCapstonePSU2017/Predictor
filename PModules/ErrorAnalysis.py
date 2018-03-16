@@ -1,3 +1,6 @@
+"""
+    This code is released under an MIT license
+"""
 import numpy as np
 import pandas as pd
 from sklearn import metrics

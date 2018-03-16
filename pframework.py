@@ -1,4 +1,6 @@
 """
+    This code is released under an MIT license
+
 This class serves as a wrapper for PFramework and a model selector.
 When adding a new model, it should follow a structure:
 PModules                root folder for all models
