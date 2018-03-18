@@ -36,7 +36,7 @@ class SimpleMovingAverage:
         self.windowLength = window_length
         self.csvWriter = CsvWriter(host="", port=0, username="", password="", database="", new_measurement="",
                                    new_cvs_file_name="")
-
+        self.data_file = data_file
         # Data returned as two columns. One with timeseries and other with bytecount values
         self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, data_file)
                                             ,new_row_start=0, new_row_end=self.defaultStride.value * self.windowLength)
@@ -65,6 +65,9 @@ class SimpleMovingAverage:
                 print("The number of series cannot exceed one year. It will be left as a default")
             else:
                 self.windowLength = int(selection)
+
+        self.returned_data_frame = self.csvWriter.csv_file_to_dataframe(new_filepath=path.join(RESOURCES_DIR, self.data_file)
+                                                                        ,new_row_start=0, new_row_end=self.defaultStride.value * self.windowLength)
 
     def initialize_dataframe_output(self):
         # Input formatting for future calculation
